@@ -1,0 +1,55 @@
+class Data_reader():
+    """data reader"""
+    def __init__(self, params):
+        self.memory = []
+        self.batch_size = params.batch_size
+        self.instance_files = params.instance_files
+        self.update_memory()
+        self.has_next = True
+        self.batch_index = 0    
+
+    def update_memory(self,):
+        for file in self.instance_files:
+            with open(file) as fi:
+                self.memory.extend(fi.readlines())
+
+    def next_batch(self):
+        if self.has_next:
+            begin_index = batch_index
+            end_index = min(batch_index + batch_size, len(self.memory))
+            if end_index >= len(self.memory):
+                self.has_next = False
+            return self.memory[begin_index:end_index]
+        else:
+            self.update_memory()
+            return self.next_batch()
+
+def _build_model(input, params):
+    hidden_state = build_layers(input)
+    logit = build_layers(hidden)
+    return logit
+
+def _build_loss(logit, label):
+    return loss_func(predictions=logit, labels=label)
+
+def _build_train_op(loss):
+    gradients,_ = loss.backward()
+    return train_op(gradients, learning_rate)
+
+def train():
+    date_reader = Data_reader(params)
+    time_begin = time.time()
+    for i in range(training_steps):
+        feature_batch, label_batch = date_reader.next_batch()
+        logit = _build_model(feature_batch)
+        loss = _build_loss(logit, label_batch)
+        # calc gradients
+        train_op.minimize(loss)
+        if need_eval:
+            loss, accuracy= calc_op()
+            print(loss, accuracy)
+        if need_save:
+            model.save()
+        if need_monitor:
+            cur_time = time.time
+            print("time_cost {}".format(cur_time-time_begin))
